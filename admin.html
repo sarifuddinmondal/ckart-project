@@ -3,110 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CKART Secure Admin</title>
+    <title>CKART Admin - Secure Access</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; text-align: center; }
-        .box { background: white; padding: 30px; border-radius: 15px; max-width: 450px; margin: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        h2 { color: #333; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
-        .btn-save { width: 95%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        #status { margin-top: 15px; font-weight: bold; }
-        .token-box { background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .admin-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { color: #1a73e8; margin-bottom: 20px; }
+        .input-group { text-align: left; margin-bottom: 15px; }
+        label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #555; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; transition: 0.3s; }
+        input:focus { border-color: #1a73e8; box-shadow: 0 0 5px rgba(26,115,232,0.2); }
+        .token-section { background: #fff8e1; padding: 15px; border-radius: 10px; border: 1px solid #ffe082; margin-bottom: 20px; }
+        .btn-update { width: 100%; padding: 14px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-update:hover { background: #1557b0; }
+        #status { margin-top: 15px; font-size: 14px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="box">
+<div class="admin-card">
     <h2>CKART Admin Panel</h2>
     
-    <div class="token-box">
-        <p style="font-size: 12px; color: #856404; margin: 0 0 5px 0;">আপনার GitHub Token এখানে দিন (এটি সেভ হবে না)</p>
-        <input type="password" id="token" placeholder="GitHub PAT Token দিন">
+    <div class="token-section">
+        <label>GitHub Access Key (PAT):</label>
+        <input type="password" id="gh-token" placeholder="আপনার টোকেনটি এখানে পেস্ট করুন">
     </div>
 
-    <hr>
-
-    <h3>প্রোডাক্ট তথ্য</h3>
-    <input type="text" id="name" placeholder="প্রোডাক্টের নাম">
-    <input type="text" id="price" placeholder="মূল্য (টাকা)">
-    <input type="text" id="img" placeholder="ইমেজ লিঙ্ক (URL)">
-    <input type="text" id="cat" placeholder="ক্যাটাগরি">
-    <input type="text" id="stock" placeholder="স্টক পরিমাণ">
+    <div class="input-group">
+        <label>প্রোডাক্টের নাম:</label>
+        <input type="text" id="p-name" placeholder="যেমন: Wireless Mouse">
+    </div>
     
-    <button class="btn-save" onclick="saveData()">Update Website</button>
-    <p id="status"></p>
+    <div class="input-group">
+        <label>মূল্য (টাকা):</label>
+        <input type="number" id="p-price" placeholder="যেমন: 1200">
+    </div>
+
+    <div class="input-group">
+        <label>ছবির লিঙ্ক (URL):</label>
+        <input type="text" id="p-img" placeholder="https://example.com/image.jpg">
+    </div>
+
+    <div class="input-group">
+        <label>ক্যাটাগরি:</label>
+        <input type="text" id="p-cat" placeholder="Electronics/Fashion">
+    </div>
+
+    <div class="input-group">
+        <label>স্টক পরিমাণ:</label>
+        <input type="number" id="p-stock" placeholder="যেমন: 50">
+    </div>
+
+    <button class="btn-update" onclick="submitData()">Update CKART Website</button>
+    <div id="status"></div>
 </div>
 
 <script>
-    const USER = 'sarifuddinmondal';
-    const REPO = 'ckart-project';
-    const FILE = 'database.json';
-
-    async function saveData() {
-        const token = document.getElementById('token').value;
+    async function submitData() {
+        const token = document.getElementById('gh-token').value;
         const status = document.getElementById('status');
-
-        if(!token) {
-            alert("দয়া করে আপনার GitHub টোকেনটি দিন!");
+        
+        if (!token) {
+            alert("দয়া করে আপনার GitHub টোকেনটি দিন!");
             return;
         }
 
-        status.innerText = "GitHub-এ পাঠানো হচ্ছে...";
-        status.style.color = "blue";
-        
-        const newProduct = {
-            id: Date.now(),
-            name: document.getElementById('name').value,
-            price: document.getElementById('price').value,
-            image: document.getElementById('img').value,
-            category: document.getElementById('cat').value,
-            stock: document.getElementById('stock').value
-        };
+        status.innerText = "GitHub-এর সাথে সংযোগ করা হচ্ছে...";
+        status.style.color = "#fb8c00";
 
+        const USER = 'sarifuddinmondal';
+        const REPO = 'ckart-project';
+        const FILE = 'database.json';
         const url = `https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`;
 
         try {
-            const res = await fetch(url, { 
-                headers: { 'Authorization': `token ${token}` } 
+            // ১. বর্তমান ডাটা ফাইলটি নিয়ে আসা
+            const res = await fetch(url, {
+                headers: { 'Authorization': `token ${token}` }
             });
-            
-            if(!res.ok) throw new Error("টোকেন ভুল অথবা ফাইল পাওয়া যায়নি!");
-            
-            const data = await res.json();
-            let content = JSON.parse(atob(data.content));
+
+            if (!res.ok) throw new Error("টোকেন ভুল বা ফাইল খুঁজে পাওয়া যায়নি!");
+
+            const fileData = await res.json();
+            const content = JSON.parse(atob(fileData.content));
+
+            // ২. নতুন প্রোডাক্টের ডাটা তৈরি করা
+            const newProduct = {
+                id: Date.now(),
+                name: document.getElementById('p-name').value,
+                price: document.getElementById('p-price').value,
+                image: document.getElementById('p-img').value,
+                category: document.getElementById('p-cat').value,
+                stock: document.getElementById('p-stock').value
+            };
+
             content.push(newProduct);
 
-            const updateRes = await fetch(url, {
+            // ৩. আপডেট করা ডাটা আবার পাঠিয়ে দেওয়া
+            const updateResponse = await fetch(url, {
                 method: 'PUT',
-                headers: { 
-                    'Authorization': `token ${token}`, 
-                    'Content-Type': 'application/json' 
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    message: "Product added via Secure Admin",
+                    message: "New product added via Secure Admin",
                     content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
-                    sha: data.sha
+                    sha: fileData.sha
                 })
             });
 
-            if (updateRes.ok) {
-                status.innerText = "অভিনন্দন! ওয়েবসাইট আপডেট হয়েছে।";
-                status.style.color = "green";
-                // ইনপুট বক্স খালি করা (টোকেন বাদে)
-                document.getElementById('name').value = "";
-                document.getElementById('price').value = "";
-                document.getElementById('img').value = "";
-                document.getElementById('cat').value = "";
-                document.getElementById('stock').value = "";
+            if (updateResponse.ok) {
+                status.innerText = "অভিনন্দন! প্রোডাক্টটি সফলভাবে যুক্ত হয়েছে।";
+                status.style.color = "#2e7d32";
+                // বক্সগুলো খালি করা
+                document.querySelectorAll('input:not(#gh-token)').forEach(i => i.value = "");
             } else {
-                status.innerText = "Error! আপডেট সফল হয়নি।";
-                status.style.color = "red";
+                throw new Error("আপডেট ব্যর্থ হয়েছে!");
             }
-        } catch (e) {
-            status.innerText = e.message;
-            status.style.color = "red";
+
+        } catch (error) {
+            status.innerText = "Error: " + error.message;
+            status.style.color = "#d32f2f";
         }
     }
 </script>
+
 </body>
 </html>
