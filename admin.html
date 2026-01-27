@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CKART Secure Admin</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; text-align: center; }
+        .box { background: white; padding: 30px; border-radius: 15px; max-width: 450px; margin: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        h2 { color: #333; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+        .btn-save { width: 95%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        #status { margin-top: 15px; font-weight: bold; }
+        .token-box { background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>CKART Admin Panel</h2>
+    
+    <div class="token-box">
+        <p style="font-size: 12px; color: #856404; margin: 0 0 5px 0;">আপনার GitHub Token এখানে দিন (এটি সেভ হবে না)</p>
+        <input type="password" id="token" placeholder="GitHub PAT Token দিন">
+    </div>
+
+    <hr>
+
+    <h3>প্রোডাক্ট তথ্য</h3>
+    <input type="text" id="name" placeholder="প্রোডাক্টের নাম">
+    <input type="text" id="price" placeholder="মূল্য (টাকা)">
+    <input type="text" id="img" placeholder="ইমেজ লিঙ্ক (URL)">
+    <input type="text" id="cat" placeholder="ক্যাটাগরি">
+    <input type="text" id="stock" placeholder="স্টক পরিমাণ">
+    
+    <button class="btn-save" onclick="saveData()">Update Website</button>
+    <p id="status"></p>
+</div>
+
+<script>
+    const USER = 'sarifuddinmondal';
+    const REPO = 'ckart-project';
+    const FILE = 'database.json';
+
+    async function saveData() {
+        const token = document.getElementById('token').value;
+        const status = document.getElementById('status');
+
+        if(!token) {
+            alert("দয়া করে আপনার GitHub টোকেনটি দিন!");
+            return;
+        }
+
+        status.innerText = "GitHub-এ পাঠানো হচ্ছে...";
+        status.style.color = "blue";
+        
+        const newProduct = {
+            id: Date.now(),
+            name: document.getElementById('name').value,
+            price: document.getElementById('price').value,
+            image: document.getElementById('img').value,
+            category: document.getElementById('cat').value,
+            stock: document.getElementById('stock').value
+        };
+
+        const url = `https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`;
+
+        try {
+            const res = await fetch(url, { 
+                headers: { 'Authorization': `token ${token}` } 
+            });
+            
+            if(!res.ok) throw new Error("টোকেন ভুল অথবা ফাইল পাওয়া যায়নি!");
+            
+            const data = await res.json();
+            let content = JSON.parse(atob(data.content));
+            content.push(newProduct);
+
+            const updateRes = await fetch(url, {
+                method: 'PUT',
+                headers: { 
+                    'Authorization': `token ${token}`, 
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify({
+                    message: "Product added via Secure Admin",
+                    content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
+                    sha: data.sha
+                })
+            });
+
+            if (updateRes.ok) {
+                status.innerText = "অভিনন্দন! ওয়েবসাইট আপডেট হয়েছে।";
+                status.style.color = "green";
+                // ইনপুট বক্স খালি করা (টোকেন বাদে)
+                document.getElementById('name').value = "";
+                document.getElementById('price').value = "";
+                document.getElementById('img').value = "";
+                document.getElementById('cat').value = "";
+                document.getElementById('stock').value = "";
+            } else {
+                status.innerText = "Error! আপডেট সফল হয়নি।";
+                status.style.color = "red";
+            }
+        } catch (e) {
+            status.innerText = e.message;
+            status.style.color = "red";
+        }
+    }
+</script>
+</body>
+</html>
