@@ -3,31 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CKART - Home</title>
+    <title>CKART - Premium Home</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f9f9f9; text-align: center; }
-        .category-scroll { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: white; white-space: nowrap; }
-        .cat-btn { padding: 8px 18px; border-radius: 20px; border: 1px solid #1a73e8; background: transparent; color: #1a73e8; cursor: pointer; font-weight: bold; }
+        .category-scroll { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: white; white-space: nowrap; border-bottom: 1px solid #ddd; position: sticky; top: 60px; z-index: 900; }
+        .cat-btn { padding: 8px 18px; border-radius: 20px; border: 1px solid #1a73e8; background: transparent; color: #1a73e8; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 12px; }
         .cat-btn.active { background: #1a73e8; color: white; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 20px; max-width: 1200px; margin: auto; }
-        .card { background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: 0.3s; }
-        .card:hover { transform: translateY(-5px); }
-        .card img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; }
-        .price { color: #e91e63; font-size: 18px; font-weight: bold; margin: 10px 0; }
-        .buy-btn { background: #25d366; color: white; text-decoration: none; padding: 8px; border-radius: 5px; display: block; font-weight: bold; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; padding: 20px; max-width: 1200px; margin: auto; }
+        .card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: 0.3s; position: relative; overflow: hidden; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
+        .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+        .discount-badge { position: absolute; top: 10px; left: 10px; background: #ff3d00; color: white; padding: 4px 8px; border-radius: 5px; font-size: 12px; font-weight: bold; }
+        .price-tag { margin: 10px 0; }
+        .mrp { color: #e91e63; font-size: 20px; font-weight: bold; }
+        .old-price { text-decoration: line-through; color: #888; font-size: 14px; margin-left: 5px; }
+        .buy-btn { background: #25d366; color: white; text-decoration: none; padding: 10px; border-radius: 6px; display: block; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div class="category-scroll">
-    <button class="cat-btn active" onclick="loadCategory('body_care.json', this)">Body Care</button>
-    <button class="cat-btn" onclick="loadCategory('face_care.json', this)">Face Care</button>
-    <button class="cat-btn" onclick="loadCategory('baby_care.json', this)">Baby Care</button>
-    <button class="cat-btn" onclick="loadCategory('cosmetic.json', this)">Cosmetic</button>
-    <button class="cat-btn" onclick="loadCategory('gold_jewelry.json', this)">Jewelry</button>
-    <button class="cat-btn" onclick="loadCategory('hair_care.json', this)">Hair Care</button>
-    <button class="cat-btn" onclick="loadCategory('personal_care.json', this)">Personal Care</button>
-    <button class="cat-btn" onclick="loadCategory('others.json', this)">Others</button>
+<div class="category-scroll" id="dynamic-categories">
+    <p style="padding: 10px; color: #888;">ক্যাটাগরি লোড হচ্ছে...</p>
 </div>
 
 <div class="grid" id="product-list">প্রোডাক্ট লোড হচ্ছে...</div>
@@ -37,16 +33,51 @@
 <script>
     const USER = "sarifuddinmondal";
     const REPO = "ckart-project";
-    const categories = ['body_care.json', 'face_care.json', 'baby_care.json', 'cosmetic.json', 'gold_jewelry.json', 'hair_care.json', 'personal_care.json', 'others.json'];
+    let allJsonFiles = []; // অটোমেটিক ফাইল লিস্ট রাখার জন্য
 
-    // একটি নির্দিষ্ট ক্যাটাগরি লোড করা
+    // ১. GitHub রিপোজিটরি থেকে সব .json ফাইল (ক্যাটাগরি) খুঁজে বের করা
+    async function fetchDynamicMenu() {
+        const url = `https://api.github.com/repos/${USER}/${REPO}/contents/`;
+        try {
+            const res = await fetch(url);
+            const files = await res.json();
+            
+            // শুধু .json ফাইলগুলো নেওয়া (consumer_data.json বাদে)
+            allJsonFiles = files
+                .filter(f => f.name.endsWith('.json') && f.name !== 'consumer_data.json' && f.name !== 'database.json')
+                .map(f => f.name);
+
+            const menuContainer = document.getElementById('dynamic-categories');
+            menuContainer.innerHTML = "";
+
+            allJsonFiles.forEach((file, index) => {
+                const cleanName = file.replace('.json', '').replace('_', ' ');
+                const btn = document.createElement('button');
+                btn.className = `cat-btn ${index === 0 ? 'active' : ''}`;
+                btn.innerText = cleanName;
+                btn.onclick = (e) => loadCategory(file, e.target);
+                menuContainer.appendChild(btn);
+            });
+
+            // শুরুতে প্রথম ক্যাটাগরি লোড করা
+            if(allJsonFiles.length > 0) loadCategory(allJsonFiles[0]);
+
+        } catch (e) {
+            document.getElementById('dynamic-categories').innerText = "মেনু লোড করতে ব্যর্থ!";
+        }
+    }
+
+    // ২. ক্যাটাগরি ভিত্তিক প্রোডাক্ট লোড (Cache ক্লিয়ারসহ)
     async function loadCategory(file, btn) {
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        if(btn) btn.classList.add('active');
+        if(btn) {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
         
         const list = document.getElementById('product-list');
         list.innerHTML = "লোড হচ্ছে...";
         
+        // ?t=${Date.now()} ব্যবহার করা হয়েছে যাতে সাথে সাথে নতুন ডাটা আসে
         const url = `https://raw.githubusercontent.com/${USER}/${REPO}/main/${file}?t=${Date.now()}`;
         try {
             const res = await fetch(url);
@@ -55,16 +86,16 @@
         } catch (e) { list.innerHTML = "এই ক্যাটাগরিতে কোনো প্রোডাক্ট নেই।"; }
     }
 
-    // সব ক্যাটাগরিতে সার্চ করার ফাংশন
+    // ৩. গ্লোবাল সার্চ (সব ফাইল থেকে খোঁজা)
     async function searchAllCategories(query) {
         if(!query) return;
         const list = document.getElementById('product-list');
         list.innerHTML = `"${query}" খোঁজা হচ্ছে...`;
         let allResults = [];
 
-        for(let file of categories) {
+        for(let file of allJsonFiles) {
             try {
-                const res = await fetch(`https://raw.githubusercontent.com/${USER}/${REPO}/main/${file}`);
+                const res = await fetch(`https://raw.githubusercontent.com/${USER}/${REPO}/main/${file}?t=${Date.now()}`);
                 const data = await res.json();
                 const filtered = data.filter(p => p.name.toLowerCase().includes(query.toLowerCase()));
                 allResults = [...allResults, ...filtered];
@@ -75,22 +106,34 @@
         else list.innerHTML = "দুঃখিত, কোনো প্রোডাক্ট পাওয়া যায়নি।";
     }
 
+    // ৪. প্রোডাক্ট কার্ড রেন্ডার করা (ইন্ডিয়ান রুপি ₹ সহ)
     function render(data) {
         const list = document.getElementById('product-list');
         list.innerHTML = "";
         data.forEach(p => {
+            const mrp = parseFloat(p.mrp) || 0;
+            const discount = parseFloat(p.discount) || 0;
+            const finalPrice = mrp - (mrp * (discount / 100));
+
             list.innerHTML += `
                 <div class="card">
-                    <img src="${p.image}" onerror="this.src='https://via.placeholder.com/200'">
-                    <h3>${p.name}</h3>
-                    <p class="price">${p.price} TK</p>
-                    <a href="https://wa.me/YOUR_NUMBER?text=Order:${p.name}" class="buy-btn">WhatsApp Order</a>
+                    ${discount > 0 ? `<div class="discount-badge">${discount}% OFF</div>` : ''}
+                    <img src="${p.img || p.image}" onerror="this.src='https://via.placeholder.com/200'">
+                    <h3 style="font-size:16px;">${p.name}</h3>
+                    <p style="font-size:12px; color:#666;">Unit: ${p.unit || 'pcs'}</p>
+                    <div class="price-tag">
+                        <span class="mrp">₹${finalPrice.toFixed(2)}</span>
+                        ${discount > 0 ? `<span class="old-price">₹${mrp}</span>` : ''}
+                    </div>
+                    <button class="buy-btn" onclick='addToCart(${JSON.stringify(p)})'>
+                        Add to Cart Bag
+                    </button>
                 </div>`;
         });
     }
 
-    // শুরুতে Body Care লোড হবে
-    window.onload = () => loadCategory('body_care.json');
+    // অটোমেটিক মেনু লোড দিয়ে শুরু
+    window.onload = fetchDynamicMenu;
 </script>
 </body>
 </html>
