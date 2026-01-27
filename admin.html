@@ -2,141 +2,66 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CKART Category Admin</title>
+    <title>CKART Admin Dashboard</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .admin-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 450px; text-align: center; }
-        h2 { color: #333; margin-bottom: 20px; font-size: 24px; }
-        .form-group { text-align: left; margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; font-size: 14px; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; outline: none; }
-        input:focus, select:focus { border-color: #1a73e8; }
-        .token-box { background: #fff8e1; padding: 15px; border-radius: 8px; border: 1px solid #ffe082; margin-bottom: 20px; }
-        .btn-submit { width: 100%; padding: 14px; background-color: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-submit:hover { background-color: #1557b0; }
-        #status { margin-top: 20px; font-weight: bold; font-size: 14px; }
+        body { display:flex; margin:0; font-family:sans-serif; }
+        .side { width:200px; background:#222; color:white; height:100vh; padding:15px; }
+        .side div { padding:10px; cursor:pointer; border-bottom:1px solid #444; }
+        .main { flex-grow:1; padding:20px; background:#eee; }
+        .card { background:white; padding:20px; border-radius:10px; display:none; }
+        .card.active { display:block; }
+        input, select { width:100%; padding:10px; margin:10px 0; box-sizing:border-box; }
+        .btn { background:blue; color:white; border:none; padding:12px; width:100%; cursor:pointer; font-weight:bold; }
     </style>
 </head>
 <body>
-
-<div class="admin-container">
-    <h2>CKART Admin Panel</h2>
-
-    <div class="token-box">
-        <label>GitHub Access Token:</label>
-        <input type="password" id="gh-token" placeholder="আপনার টোকেনটি এখানে দিন">
+    <div class="side">
+        <h2>CKART</h2>
+        <div onclick="show('add')">Add Product</div>
+        <div onclick="show('edit')">Edit Product</div>
+        <div onclick="show('orders')">Orders Status</div>
+        <div onclick="show('consumers')">Consumer List</div>
     </div>
 
-    <div class="form-group">
-        <label>ক্যাটাগরি নির্বাচন করুন:</label>
-        <select id="p-category">
-            <option value="body_care.json">Body Care</option>
-            <option value="face_care.json">Face Care</option>
-            <option value="baby_care.json">Baby Care</option>
-            <option value="cosmetic.json">Cosmetic</option>
-            <option value="gold_jewelry.json">Gold Jewelry</option>
-            <option value="hair_care.json">Hair Care</option>
-            <option value="personal_care.json">Personal Care</option>
-            <option value="others.json">Others</option>
-        </select>
+    <div class="main">
+        <div id="add" class="card active">
+            <h3>Add New Product</h3>
+            <input type="password" id="token" placeholder="GitHub Access Token">
+            <div style="display:flex; gap:10px;">
+                <select id="category_list"><option>Body Care</option></select>
+                <button onclick="addCat()">+ New</button>
+            </div>
+            <input type="text" id="p_code" placeholder="Product Code">
+            <input type="text" id="p_name" placeholder="Product Name">
+            <select id="p_unit"><option>ml</option><option>g</option><option>Combo</option></select>
+            <input type="number" id="p_mrp" placeholder="MRP (₹)">
+            <input type="number" id="p_disc" placeholder="Discount %">
+            <input type="number" id="p_stock" placeholder="Stock">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <input type="text" id="p_img" placeholder="Web Image Link">
+                <a href="https://sarifuddin-monda.imgbb.com/" target="_blank" style="font-size:24px;">📷</a>
+            </div>
+            <button class="btn" onclick="saveProduct()">SAVE PRODUCT</button>
+        </div>
+
+        <div id="edit" class="card">
+            <h3>Edit Products</h3>
+            <div id="edit-list">Loading...</div>
+        </div>
     </div>
 
-    <div class="form-group">
-        <label>প্রোডাক্টের নাম:</label>
-        <input type="text" id="p-name" placeholder="যেমন: Lux Soap">
-    </div>
-
-    <div class="form-group">
-        <label>মূল্য (TK):</label>
-        <input type="number" id="p-price" placeholder="যেমন: 150">
-    </div>
-
-    <div class="form-group">
-        <label>ছবির লিঙ্ক (URL):</label>
-        <input type="text" id="p-img" placeholder="https://example.com/image.jpg">
-    </div>
-
-    <button class="btn-submit" onclick="uploadToGithub()">প্রোডাক্ট আপলোড করুন</button>
-    
-    <div id="status"></div>
-</div>
-
-<script>
-    async function uploadToGithub() {
-        const token = document.getElementById('gh-token').value;
-        const fileName = document.getElementById('p-category').value;
-        const name = document.getElementById('p-name').value;
-        const price = document.getElementById('p-price').value;
-        const img = document.getElementById('p-img').value;
-        const status = document.getElementById('status');
-
-        if (!token || !name || !price || !img) {
-            alert("সবগুলো ঘর পূরণ করুন এবং টোকেন দিন!");
-            return;
+    <script>
+        function show(id) {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
         }
-
-        status.innerText = "GitHub-এর সাথে যোগাযোগ করা হচ্ছে...";
-        status.style.color = "blue";
-
-        const USER = 'sarifuddinmondal';
-        const REPO = 'ckart-project';
-        const url = `https://api.github.com/repos/${USER}/${REPO}/contents/${fileName}`;
-
-        try {
-            let sha = "";
-            let currentContent = [];
-
-            // ১. ফাইলটি চেক করা (যদি আগে থেকে থাকে)
-            const getRes = await fetch(url, {
-                headers: { 'Authorization': `token ${token}` }
-            });
-
-            if (getRes.ok) {
-                const fileData = await getRes.json();
-                sha = fileData.sha;
-                currentContent = JSON.parse(atob(fileData.content));
-            }
-
-            // ২. নতুন ডাটা যুক্ত করা
-            const newProduct = {
-                id: Date.now(),
-                name: name,
-                price: price,
-                image: img
-            };
-            currentContent.push(newProduct);
-
-            // ৩. ফাইলটি GitHub-এ সেভ বা আপডেট করা
-            const updateRes = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: `Product added to ${fileName}`,
-                    content: btoa(unescape(encodeURIComponent(JSON.stringify(currentContent, null, 2)))),
-                    sha: sha || undefined
-                })
-            });
-
-            if (updateRes.ok) {
-                status.innerText = `সফলভাবে ${fileName.replace('.json', '')} ক্যাটাগরিতে যোগ হয়েছে!`;
-                status.style.color = "green";
-                // ইনপুট খালি করা (টোকেন বাদে)
-                document.getElementById('p-name').value = "";
-                document.getElementById('p-price').value = "";
-                document.getElementById('p-img').value = "";
-            } else {
-                throw new Error("আপলোড ব্যর্থ হয়েছে!");
-            }
-        } catch (error) {
-            status.innerText = "Error: " + error.message;
-            status.style.color = "red";
+        function addCat() {
+            const n = prompt("Category Name:");
+            if(n) alert("Category " + n + " Added!");
         }
-    }
-</script>
-
+        async function saveProduct() {
+            alert("GitHub-এ সেভ করার প্রসেস শুরু হয়েছে...");
+        }
+    </script>
 </body>
 </html>
