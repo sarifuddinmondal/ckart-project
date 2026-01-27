@@ -3,65 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CKART - Admin Dashboard</title>
+    <title>CKART - Admin Best Dashboard</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; background: #f4f7f6; }
-        
-        /* Sidebar Design */
         .sidebar { width: 250px; background: #2c3e50; color: white; height: 100vh; position: fixed; }
         .sidebar h2 { text-align: center; color: gold; padding: 20px 0; border-bottom: 1px solid #34495e; }
         .menu-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #34495e; transition: 0.3s; }
         .menu-item:hover { background: #34495e; color: gold; }
-        
-        /* Main Content */
-        .main-content { margin-left: 250px; padding: 30px; width: 100%; }
+        .main-content { margin-left: 250px; padding: 30px; width: calc(100% - 250px); }
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: none; }
         .active { display: block; }
-        
-        h3 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid gold; display: inline-block; padding-bottom: 5px; }
-        
-        /* Form Styling */
         .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
         .input-group { display: flex; flex-direction: column; }
         label { font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none; }
-        
-        .image-input-container { display: flex; align-items: center; gap: 10px; }
-        .camera-icon { font-size: 24px; text-decoration: none; cursor: pointer; }
-        
-        .btn-save { grid-column: span 2; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-save:hover { background: #219150; }
-        
-        /* Status List */
-        .order-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .order-table th, .order-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        .order-table th { background: #f2f2f2; }
+        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+        .btn-save { grid-column: span 2; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        #status { margin-top: 15px; font-weight: bold; text-align: center; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
         <h2>CKART ADMIN</h2>
-        <div class="menu-item" onclick="showPage('dashboard')">📊 Dashboard</div>
         <div class="menu-item" onclick="showPage('add-product')">➕ Add Product</div>
         <div class="menu-item" onclick="showPage('edit-product')">✏️ Edit Product</div>
         <div class="menu-item" onclick="showPage('order-status')">📦 Consumer Orders</div>
-        <div class="menu-item" onclick="showPage('consumer-list')">👥 Consumer List</div>
     </div>
 
     <div class="main-content">
-        
-        <div id="dashboard" class="card active">
-            <h3>Admin Dashboard</h3>
-            <p>স্বাগতম! এখান থেকে আপনি আপনার ওয়েবসাইটের সব কিছু নিয়ন্ত্রণ করতে পারবেন।</p>
-        </div>
-
-        <div id="add-product" class="card">
+        <div id="add-product" class="card active">
             <h3>Add New Product</h3>
             <div class="grid-form">
                 <div class="input-group" style="grid-column: span 2;">
                     <label>GitHub Access Token:</label>
-                    <input type="password" id="gh-token" placeholder="Enter Token">
+                    <input type="password" id="gh-token" placeholder="Paste Token Here">
                 </div>
                 
                 <div class="input-group">
@@ -71,109 +46,115 @@
                             <option value="body_care.json">Body Care</option>
                             <option value="face_care.json">Face Care</option>
                             <option value="baby_care.json">Baby Care</option>
+                            <option value="cosmetic.json">Cosmetic</option>
+                            <option value="gold_jewelry.json">Gold Jewelry</option>
+                            <option value="hair_care.json">Hair Care</option>
+                            <option value="personal_care.json">Personal Care</option>
+                            <option value="others.json">Others</option>
                         </select>
-                        <button onclick="addNewCategory()" style="padding:0 10px;">+</button>
+                        <button onclick="addNewCat()">+</button>
                     </div>
                 </div>
 
+                <div class="input-group"><label>Product Code:</label><input type="text" id="p-code"></div>
+                <div class="input-group"><label>Product Name:</label><input type="text" id="p-name"></div>
                 <div class="input-group">
-                    <label>Product Code:</label>
-                    <input type="text" id="p-code" placeholder="Example: CK-101">
+                    <label>Unit:</label>
+                    <select id="p-unit"><option>ml</option><option>g</option><option>pcs</option><option>Combo</option></select>
                 </div>
-
-                <div class="input-group">
-                    <label>Product Name:</label>
-                    <input type="text" id="p-name">
-                </div>
-
-                <div class="input-group">
-                    <label>Quantity Unit:</label>
-                    <select id="p-unit">
-                        <option>ml</option>
-                        <option>g</option>
-                        <option>pcs</option>
-                        <option>Combo</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label>MRP (₹):</label>
-                    <input type="number" id="p-mrp">
-                </div>
-
-                <div class="input-group">
-                    <label>Discount (%):</label>
-                    <input type="number" id="p-disc" value="0">
-                </div>
-
-                <div class="input-group">
-                    <label>Stock:</label>
-                    <input type="number" id="p-stock">
-                </div>
-
+                <div class="input-group"><label>MRP (₹):</label><input type="number" id="p-mrp"></div>
+                <div class="input-group"><label>Discount (%):</label><input type="number" id="p-disc" value="0"></div>
+                <div class="input-group"><label>Stock:</label><input type="number" id="p-stock"></div>
                 <div class="input-group">
                     <label>Image Link:</label>
-                    <div class="image-input-container">
+                    <div style="display:flex; gap:10px;">
                         <input type="text" id="p-img" style="flex-grow:1;">
-                        <a href="https://sarifuddin-monda.imgbb.com/" target="_blank" class="camera-icon">📷</a>
+                        <a href="https://sarifuddin-monda.imgbb.com/" target="_blank" style="text-decoration:none; font-size:24px;">📷</a>
                     </div>
                 </div>
 
-                <button class="btn-save" onclick="saveToGithub()">Add Product to Website</button>
+                <button class="btn-save" onclick="saveToGithub()">Save Product to GitHub</button>
             </div>
+            <div id="status"></div>
         </div>
 
-        <div id="edit-product" class="card">
-            <h3>Edit Product</h3>
-            <p>প্রোডাক্ট কোড দিয়ে সার্চ করে এডিট করুন।</p>
-            <input type="text" placeholder="Enter Product Code..." style="width:50%;">
-            <button>Search</button>
-        </div>
-
-        <div id="order-status" class="card">
-            <h3>Consumer Orders</h3>
-            <table class="order-table">
-                <tr>
-                    <th>Order ID</th>
-                    <th>Consumer Name</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-                <tr>
-                    <td>OD27012026112PM</td>
-                    <td>Samsul Haque</td>
-                    <td style="color:orange; font-weight:bold;">Processing</td>
-                    <td><button>Update Status</button></td>
-                </tr>
-            </table>
-        </div>
-
+        <div id="edit-product" class="card"><h3>Edit Product</h3><p>Working on this module...</p></div>
+        <div id="order-status" class="card"><h3>Orders</h3><p>Consumer order data will appear here.</p></div>
     </div>
 
     <script>
-        // পেজ পরিবর্তন করার ফাংশন
-        function showPage(pageId) {
-            document.querySelectorAll('.card').forEach(card => card.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
+        const USER = "sarifuddinmondal";
+        const REPO = "ckart-project";
+
+        function showPage(id) {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
         }
 
-        // নতুন ক্যাটাগরি অ্যাড করা
-        function addNewCategory() {
-            let newCat = prompt("Enter New Category Name:");
-            if(newCat) {
-                let select = document.getElementById('p-cat');
-                let option = document.createElement("option");
-                option.text = newCat;
-                option.value = newCat.toLowerCase().replace(" ", "_") + ".json";
-                select.add(option);
-                alert("Category Added Locally! Please save a product to create the file on GitHub.");
+        function addNewCat() {
+            let n = prompt("New Category Name:");
+            if(n) {
+                let s = document.getElementById('p-cat');
+                let opt = document.createElement("option");
+                opt.text = n; opt.value = n.toLowerCase().replace(" ", "_") + ".json";
+                s.add(opt);
             }
         }
 
-        // ডাটা গিথুবে সেভ করার ফাংশন (লজিক আপনার আগের কোড অনুযায়ী)
         async function saveToGithub() {
-            alert("প্রোডাক্ট সেভ করার প্রক্রিয়া শুরু হচ্ছে...");
-            // এখানে আগের সেই fetch লজিকটি কাজ করবে
+            const token = document.getElementById('gh-token').value;
+            const fileName = document.getElementById('p-cat').value;
+            const status = document.getElementById('status');
+
+            if(!token) { alert("Please enter GitHub Token!"); return; }
+
+            status.innerText = "Connecting to GitHub...";
+            status.style.color = "blue";
+
+            const url = `https://api.github.com/repos/${USER}/${REPO}/contents/${fileName}`;
+
+            try {
+                let sha = "";
+                let content = [];
+                const res = await fetch(url, { headers: { 'Authorization': `token ${token}` } });
+                
+                if(res.ok) {
+                    const data = await res.json();
+                    sha = data.sha;
+                    content = JSON.parse(atob(data.content));
+                }
+
+                const newP = {
+                    code: document.getElementById('p-code').value,
+                    name: document.getElementById('p-name').value,
+                    unit: document.getElementById('p-unit').value,
+                    mrp: document.getElementById('p-mrp').value,
+                    discount: document.getElementById('p-disc').value,
+                    stock: document.getElementById('p-stock').value,
+                    img: document.getElementById('p-img').value,
+                    id: Date.now()
+                };
+
+                content.push(newP);
+
+                const update = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: "Product Added",
+                        content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
+                        sha: sha || undefined
+                    })
+                });
+
+                if(update.ok) {
+                    status.innerText = "Success! Product added to " + fileName;
+                    status.style.color = "green";
+                }
+            } catch (e) {
+                status.innerText = "Error: " + e.message;
+                status.style.color = "red";
+            }
         }
     </script>
 </body>
