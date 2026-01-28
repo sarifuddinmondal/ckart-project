@@ -4,44 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CKART Admin - Master Dashboard</title>
+    <script src="config.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; background: #f0f2f5; }
         #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2c3e50; z-index: 9999; display: flex; justify-content: center; align-items: center; }
-        .login-box { background: white; padding: 30px; border-radius: 10px; text-align: center; }
+        .login-box { background: white; padding: 30px; border-radius: 10px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         .sidebar { width: 250px; background: #2c3e50; color: white; height: 100vh; position: fixed; }
-        .sidebar h2 { text-align: center; color: gold; padding: 20px 0; border-bottom: 1px solid #444; }
-        .menu-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #34495e; }
+        .sidebar h2 { text-align: center; color: gold; border-bottom: 1px solid #444; padding: 20px 0; }
+        .menu-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #34495e; transition: 0.3s; }
         .menu-item:hover { background: #34495e; color: gold; }
         .main-content { margin-left: 250px; padding: 30px; width: calc(100% - 250px); }
-        .card { background: white; padding: 25px; border-radius: 12px; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: none; }
         .active { display: block; }
         .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        input, select { padding: 12px; border: 1px solid #ddd; border-radius: 6px; }
-        .btn-save { grid-column: span 2; padding: 15px; background: #27ae60; color: white; border: none; font-weight: bold; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        input, select { padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+        .btn-save { grid-column: span 2; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; font-size: 13px; }
+        th { background: #2c3e50; color: white; }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
         <div class="login-box">
-            <h3>CKART Admin Login</h3>
-            <input type="password" id="admin-token" placeholder="Enter GitHub PAT Token" style="width: 250px; margin-bottom: 15px;"><br>
-            <button onclick="accessAdmin()" style="padding: 10px 30px; background: gold; border: none; cursor: pointer;">OPEN DASHBOARD</button>
+            <h3>GitHub Admin Access</h3>
+            <p>Enter Token to Open Dashboard</p>
+            <input type="password" id="admin-token" placeholder="Paste GitHub PAT Token" style="width: 250px; margin-bottom: 15px;">
+            <br>
+            <button onclick="accessAdmin()" style="padding: 10px 30px; background: gold; border: none; font-weight: bold; cursor: pointer;">OPEN DASHBOARD</button>
         </div>
     </div>
 
     <div class="sidebar">
         <h2>CKART ADMIN</h2>
         <div class="menu-item" onclick="showPage('add-p')">➕ Add Product</div>
-        <div class="menu-item" onclick="showPage('view-p')">✏️ Product List</div>
-        <div class="menu-item" onclick="showPage('orders-page')">📦 Orders & Consumers</div>
+        <div class="menu-item" onclick="showPage('orders')">📦 Orders & Status</div>
+        <div class="menu-item" onclick="showPage('consumers')">👥 Consumer List</div>
     </div>
 
     <div class="main-content">
         <div id="add-p" class="card active">
-            <h3>Add New Product (Master List)</h3>
+            <h3>Add New Product</h3>
             <div class="grid-form">
                 <select id="p-cat">
                     <option value="body_care">Body Care</option>
@@ -57,36 +61,47 @@
                 </select>
                 <input type="text" id="p-code" placeholder="Product Code">
                 <input type="text" id="p-name" placeholder="Product Name">
-                <select id="p-unit"><option>ml</option><option>g</option><option>pcs</option><option>Combo</option></select>
+                <select id="p-unit">
+                    <option>ml</option><option>g</option><option>pcs</option><option>Combo</option>
+                </select>
                 <input type="number" id="p-mrp" placeholder="MRP (₹)">
                 <input type="number" id="p-disc" placeholder="Discount %">
                 <input type="number" id="p-stock" placeholder="Stock Quantity">
-                <input type="text" id="p-img" placeholder="Image Link">
-                <button class="btn-save" onclick="saveProduct()">SAVE TO GITHUB & SHEET</button>
+                <input type="text" id="p-img" placeholder="Direct Image Link">
+                <button class="btn-save" onclick="saveProduct()">SAVE PRODUCT (GITHUB & SHEET)</button>
             </div>
         </div>
 
-        <div id="orders-page" class="card">
-            <h3>Recent Orders</h3>
+        <div id="orders" class="card">
+            <h3>Order Status List</h3>
+            <table id="order-table">
+                <thead>
+                    <tr><th>Name</th><th>Order No</th><th>Date</th><th>Status</th></tr>
+                </thead>
+                <tbody id="order-list"></tbody>
+            </table>
+        </div>
+
+        <div id="consumers" class="card">
+            <h3>Registered Consumers</h3>
             <table>
-                <thead><tr><th>Order ID</th><th>Consumer</th><th>Status</th></tr></thead>
-                <tbody id="order-list-body"></tbody>
+                <thead>
+                    <tr><th>Name</th><th>ID</th><th>Mobile</th><th>Area</th></tr>
+                </thead>
+                <tbody id="consumer-list"></tbody>
             </table>
         </div>
     </div>
 
     <script>
         let GITHUB_TOKEN = "";
-        const USER = "sarifuddinmondal";
-        const REPO = "ckart-project";
-        const SCRIPT_URL = "আপনার_GOOGLE_SCRIPT_URL_এখানে_দিন";
 
         function accessAdmin() {
-            const token = document.getElementById('admin-token').value;
-            if(token.length > 10) {
-                GITHUB_TOKEN = token;
+            const tokenInput = document.getElementById('admin-token').value;
+            if(tokenInput.length > 10) {
+                GITHUB_TOKEN = tokenInput;
                 document.getElementById('login-overlay').style.display = 'none';
-            } else { alert("Wrong Token!"); }
+            } else { alert("Invalid Token!"); }
         }
 
         function showPage(id) {
@@ -107,36 +122,42 @@
                 id: Date.now()
             };
 
-            // 1. Save to GitHub (product_data.json)
-            const url = `https://api.github.com/repos/${USER}/${REPO}/contents/product_data.json`;
+            const url = `https://api.github.com/repos/${CONFIG.USER}/${CONFIG.REPO}/contents/product_data.json`;
+
             try {
-                const res = await fetch(url, { headers: { 'Authorization': `token ${GITHUB_TOKEN}` } });
+                // 1. Save to Google Sheet
+                await fetch(CONFIG.SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({...newP, sheet: "product_data"})
+                });
+
+                // 2. Save to GitHub
                 let sha = "";
                 let content = [];
+                const res = await fetch(url, { headers: { 'Authorization': `token ${GITHUB_TOKEN}` } });
                 if(res.ok) {
                     const data = await res.json();
                     sha = data.sha;
                     content = JSON.parse(atob(data.content));
                 }
+
                 content.push(newP);
-                await fetch(url, {
+
+                const update = await fetch(url, {
                     method: 'PUT',
-                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` },
+                    headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        message: "Update product_data",
+                        message: "Add Product to Master List",
                         content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
                         sha: sha || undefined
                     })
                 });
 
-                // 2. Save to Google Sheet
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({...newP, sheet: "product_data"})
-                });
-
-                alert("Product Added Successfully!");
-                location.reload();
+                if(update.ok) {
+                    alert("Success! Data synced to GitHub and Sheet.");
+                    location.reload();
+                }
             } catch (e) { alert("Error: " + e.message); }
         }
     </script>
