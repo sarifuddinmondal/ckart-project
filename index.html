@@ -1,36 +1,75 @@
-<script>
-    const USER = "sarifuddinmondal";
-    const REPO = "ckart-project";
-    let masterData = [];
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CKART - Premium Store</title>
+    <script src="config.js"></script>
+    <style>
+        body { font-family: sans-serif; margin: 0; background: #f4f4f4; text-align: center; }
+        .category-scroll { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: white; white-space: nowrap; border-bottom: 1px solid #ddd; sticky: top; }
+        .cat-btn { padding: 10px 20px; border-radius: 20px; border: 1px solid #1a73e8; background: transparent; color: #1a73e8; cursor: pointer; font-weight: bold; }
+        .cat-btn.active { background: #1a73e8; color: white; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; padding: 15px; }
+        .card { background: white; border-radius: 10px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .card img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; }
+        .price { color: #e91e63; font-size: 16px; font-weight: bold; margin: 8px 0; }
+    </style>
+</head>
+<body>
 
-    // ক্যাটাগরি লিস্ট
+<div class="category-scroll" id="cat-menu">
+    <button class="cat-btn active" onclick="filterData('all', this)">ALL</button>
+</div>
+
+<div class="grid" id="product-list">Loading Products...</div>
+
+<script>
+    let masterData = [];
     const categories = ['body_care', 'cosmetic', 'face_care', 'hire_care', 'color_cosmatic', 'personal_care', 'nail_care', 'beauty_tool', 'skin_care', 'others'];
 
-    async function loadMasterData() {
-        const url = `https://raw.githubusercontent.com/${USER}/${REPO}/main/product_data.json?t=${Date.now()}`;
+    async function loadData() {
+        const url = `https://raw.githubusercontent.com/${CONFIG.USER}/${CONFIG.REPO}/main/product_data.json?t=${Date.now()}`;
         try {
             const res = await fetch(url);
             masterData = await res.json();
-            renderProducts(masterData); // শুরুতে সব দেখাবে
-        } catch (e) { document.getElementById('product-list').innerHTML = "No Data Found."; }
+            render(masterData);
+        } catch (e) { document.getElementById('product-list').innerHTML = "No products found."; }
     }
 
-    function filterByCategory(cat) {
-        const filtered = masterData.filter(p => p.category === cat);
-        renderProducts(filtered);
+    function filterData(cat, btn) {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if(cat === 'all') { render(masterData); }
+        else {
+            const filtered = masterData.filter(p => p.category === cat);
+            render(filtered);
+        }
     }
 
-    function renderProducts(data) {
+    function render(data) {
         const list = document.getElementById('product-list');
         list.innerHTML = data.map(p => `
             <div class="card">
-                <img src="${p.img}">
-                <h3>${p.name}</h3>
+                <img src="${p.img || 'https://via.placeholder.com/150'}" onerror="this.src='https://via.placeholder.com/150'">
+                <h4 style="margin:5px 0; font-size:14px;">${p.name}</h4>
                 <p class="price">₹${p.mrp}</p>
-                <button onclick='addToCart(${JSON.stringify(p)})'>Add to Bag</button>
+                <button onclick='addToCart(${JSON.stringify(p)})' style="width:100%; padding:8px; background:gold; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">Add to Bag</button>
             </div>
         `).join('');
     }
 
-    window.onload = loadMasterData;
+    window.onload = () => {
+        const menu = document.getElementById('cat-menu');
+        categories.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = 'cat-btn';
+            btn.innerText = cat.replace('_', ' ').toUpperCase();
+            btn.onclick = (e) => filterData(cat, e.target);
+            menu.appendChild(btn);
+        });
+        loadData();
+    };
 </script>
+</body>
+</html>
