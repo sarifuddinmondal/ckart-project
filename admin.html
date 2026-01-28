@@ -6,107 +6,71 @@
     <title>CKART Admin - Master Dashboard</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; background: #f0f2f5; }
-        /* Login Overlay */
         #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2c3e50; z-index: 9999; display: flex; justify-content: center; align-items: center; }
-        .login-box { background: white; padding: 30px; border-radius: 10px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-        
+        .login-box { background: white; padding: 30px; border-radius: 10px; text-align: center; }
         .sidebar { width: 250px; background: #2c3e50; color: white; height: 100vh; position: fixed; }
-        .sidebar h2 { text-align: center; color: gold; border-bottom: 1px solid #444; padding: 20px 0; }
-        .menu-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #34495e; transition: 0.3s; }
+        .sidebar h2 { text-align: center; color: gold; padding: 20px 0; border-bottom: 1px solid #444; }
+        .menu-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #34495e; }
         .menu-item:hover { background: #34495e; color: gold; }
-        
         .main-content { margin-left: 250px; padding: 30px; width: calc(100% - 250px); }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: none; }
+        .card { background: white; padding: 25px; border-radius: 12px; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .active { display: block; }
-        
         .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        input, select { padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
-        .btn-save { grid-column: span 2; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; font-size: 13px; }
-        th { background: #2c3e50; color: white; }
-        .img-small { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; }
-        .btn-del { background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        input, select { padding: 12px; border: 1px solid #ddd; border-radius: 6px; }
+        .btn-save { grid-column: span 2; padding: 15px; background: #27ae60; color: white; border: none; font-weight: bold; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
         <div class="login-box">
-            <h3>GitHub Admin Access</h3>
-            <p>Enter Token to Open Dashboard</p>
-            <input type="password" id="admin-token" placeholder="Paste GitHub PAT Token" style="width: 250px; margin-bottom: 15px;">
-            <br>
-            <button onclick="accessAdmin()" style="padding: 10px 30px; background: gold; border: none; font-weight: bold; cursor: pointer;">OPEN DASHBOARD</button>
+            <h3>CKART Admin Login</h3>
+            <input type="password" id="admin-token" placeholder="Enter GitHub PAT Token" style="width: 250px; margin-bottom: 15px;"><br>
+            <button onclick="accessAdmin()" style="padding: 10px 30px; background: gold; border: none; cursor: pointer;">OPEN DASHBOARD</button>
         </div>
     </div>
 
     <div class="sidebar">
         <h2>CKART ADMIN</h2>
         <div class="menu-item" onclick="showPage('add-p')">➕ Add Product</div>
-        <div class="menu-item" onclick="showPage('view-p')">✏️ Product List / Edit</div>
-        <div class="menu-item" onclick="showPage('orders')">📦 Consumer Orders</div>
+        <div class="menu-item" onclick="showPage('view-p')">✏️ Product List</div>
+        <div class="menu-item" onclick="showPage('orders-page')">📦 Orders & Consumers</div>
     </div>
 
     <div class="main-content">
         <div id="add-p" class="card active">
-            <h3>Add New Product</h3>
+            <h3>Add New Product (Master List)</h3>
             <div class="grid-form">
                 <select id="p-cat">
-                    <option value="body_care.json">Body Care</option>
-                    <option value="face_care.json">Face Care</option>
-                    <option value="baby_care.json">Baby Care</option>
-                    <option value="cosmetic.json">Cosmetic</option>
-                    <option value="gold_jewelry.json">Gold Jewelry</option>
-                    <option value="hair_care.json">Hair Care</option>
-                    <option value="personal_care.json">Personal Care</option>
-                    <option value="others.json">Others</option>
+                    <option value="body_care">Body Care</option>
+                    <option value="cosmetic">Cosmetic</option>
+                    <option value="face_care">Face Care</option>
+                    <option value="hire_care">Hair Care</option>
+                    <option value="color_cosmatic">Color Cosmetic</option>
+                    <option value="personal_care">Personal Care</option>
+                    <option value="nail_care">Nail Care</option>
+                    <option value="beauty_tool">Beauty Tool</option>
+                    <option value="skin_care">Skin Care</option>
+                    <option value="others">Others</option>
                 </select>
                 <input type="text" id="p-code" placeholder="Product Code">
                 <input type="text" id="p-name" placeholder="Product Name">
-                <select id="p-unit">
-                    <option>ml</option><option>g</option><option>pcs</option><option>Combo</option>
-                </select>
+                <select id="p-unit"><option>ml</option><option>g</option><option>pcs</option><option>Combo</option></select>
                 <input type="number" id="p-mrp" placeholder="MRP (₹)">
                 <input type="number" id="p-disc" placeholder="Discount %">
                 <input type="number" id="p-stock" placeholder="Stock Quantity">
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="p-img" placeholder="Direct Image Link" style="flex-grow:1;">
-                    <a href="https://sarifuddin-monda.imgbb.com/" target="_blank" style="font-size:24px; text-decoration:none;">📷</a>
-                </div>
-                <button class="btn-save" onclick="saveProduct()">SAVE PRODUCT & READY NEXT</button>
+                <input type="text" id="p-img" placeholder="Image Link">
+                <button class="btn-save" onclick="saveProduct()">SAVE TO GITHUB & SHEET</button>
             </div>
-            <div id="status"></div>
         </div>
 
-        <div id="orders" class="card">
-            <h3>Consumer Order Data</h3>
-            <table id="order-table">
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Img</th>
-                        <th>Product</th>
-                        <th>Consumer</th>
-                        <th>Address & Mob</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="order-list">
-                    </tbody>
-            </table>
-        </div>
-
-        <div id="view-p" class="card">
-            <h3>All Product List</h3>
-            <select id="view-cat" onchange="loadProductList()">
-                <option value="">Select Category to View</option>
-                <option value="body_care.json">Body Care</option>
-                </select>
-            <table id="product-table">
-                <thead><tr><th>Code</th><th>Name</th><th>Price</th><th>Action</th></tr></thead>
-                <tbody id="p-list-body"></tbody>
+        <div id="orders-page" class="card">
+            <h3>Recent Orders</h3>
+            <table>
+                <thead><tr><th>Order ID</th><th>Consumer</th><th>Status</th></tr></thead>
+                <tbody id="order-list-body"></tbody>
             </table>
         </div>
     </div>
@@ -115,68 +79,66 @@
         let GITHUB_TOKEN = "";
         const USER = "sarifuddinmondal";
         const REPO = "ckart-project";
+        const SCRIPT_URL = "আপনার_GOOGLE_SCRIPT_URL_এখানে_দিন";
 
         function accessAdmin() {
-            const tokenInput = document.getElementById('admin-token').value;
-            if(tokenInput.length > 10) {
-                GITHUB_TOKEN = tokenInput;
+            const token = document.getElementById('admin-token').value;
+            if(token.length > 10) {
+                GITHUB_TOKEN = token;
                 document.getElementById('login-overlay').style.display = 'none';
-            } else { alert("Invalid Token!"); }
+            } else { alert("Wrong Token!"); }
         }
 
         function showPage(id) {
             document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            if(id === 'view-p') loadProductList();
         }
 
         async function saveProduct() {
-            const fileName = document.getElementById('p-cat').value;
-            const status = document.getElementById('status');
-            const url = `https://api.github.com/repos/${USER}/${REPO}/contents/${fileName}`;
+            const newP = {
+                code: document.getElementById('p-code').value,
+                name: document.getElementById('p-name').value,
+                unit: document.getElementById('p-unit').value,
+                mrp: document.getElementById('p-mrp').value,
+                discount: document.getElementById('p-disc').value,
+                stock: document.getElementById('p-stock').value,
+                img: document.getElementById('p-img').value,
+                category: document.getElementById('p-cat').value,
+                id: Date.now()
+            };
 
+            // 1. Save to GitHub (product_data.json)
+            const url = `https://api.github.com/repos/${USER}/${REPO}/contents/product_data.json`;
             try {
+                const res = await fetch(url, { headers: { 'Authorization': `token ${GITHUB_TOKEN}` } });
                 let sha = "";
                 let content = [];
-                const res = await fetch(url, { headers: { 'Authorization': `token ${GITHUB_TOKEN}` } });
                 if(res.ok) {
                     const data = await res.json();
                     sha = data.sha;
                     content = JSON.parse(atob(data.content));
                 }
-
-                const newP = {
-                    code: document.getElementById('p-code').value,
-                    name: document.getElementById('p-name').value,
-                    unit: document.getElementById('p-unit').value,
-                    mrp: document.getElementById('p-mrp').value,
-                    discount: document.getElementById('p-disc').value,
-                    stock: document.getElementById('p-stock').value,
-                    img: document.getElementById('p-img').value,
-                    id: Date.now()
-                };
-
                 content.push(newP);
-
-                const update = await fetch(url, {
+                await fetch(url, {
                     method: 'PUT',
-                    headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
+                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` },
                     body: JSON.stringify({
-                        message: "Add Product",
+                        message: "Update product_data",
                         content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
                         sha: sha || undefined
                     })
                 });
 
-                if(update.ok) {
-                    alert("Success!");
-                    // Clear form completely
-                    ['p-code', 'p-name', 'p-mrp', 'p-disc', 'p-stock', 'p-img'].forEach(id => document.getElementById(id).value = "");
-                }
+                // 2. Save to Google Sheet
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({...newP, sheet: "product_data"})
+                });
+
+                alert("Product Added Successfully!");
+                location.reload();
             } catch (e) { alert("Error: " + e.message); }
         }
-
-        // Logic for orders and list would go here...
     </script>
 </body>
 </html>
