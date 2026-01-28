@@ -1,89 +1,36 @@
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CKART - Premium Store</title>
-    <style>
-        body { font-family: sans-serif; margin: 0; background: #f4f4f4; text-align: center; }
-        .category-scroll { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: white; white-space: nowrap; border-bottom: 1px solid #ddd; }
-        .cat-btn { padding: 10px 20px; border-radius: 20px; border: 1px solid #1a73e8; background: transparent; color: #1a73e8; cursor: pointer; font-weight: bold; }
-        .cat-btn.active { background: #1a73e8; color: white; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 20px; }
-        .card { background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .card img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; }
-        .price { color: #e91e63; font-size: 18px; font-weight: bold; margin: 10px 0; }
-    </style>
-</head>
-<body>
-
-<div class="category-scroll" id="cat-menu">
-    </div>
-
-<div class="grid" id="product-list">Loading Products...</div>
-
-<script src="navbar.js"></script>
-
 <script>
     const USER = "sarifuddinmondal";
     const REPO = "ckart-project";
-    const categories = ['body_care.json', 'face_care.json', 'baby_care.json', 'cosmetic.json', 'gold_jewelry.json', 'hair_care.json', 'personal_care.json', 'others.json'];
+    let masterData = [];
 
-    async function loadCategory(file, btn) {
-        if(btn) {
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
-        const list = document.getElementById('product-list');
-        list.innerHTML = "Loading...";
-        const url = `https://raw.githubusercontent.com/${USER}/${REPO}/main/${file}?t=${Date.now()}`;
+    // ক্যাটাগরি লিস্ট
+    const categories = ['body_care', 'cosmetic', 'face_care', 'hire_care', 'color_cosmatic', 'personal_care', 'nail_care', 'beauty_tool', 'skin_care', 'others'];
+
+    async function loadMasterData() {
+        const url = `https://raw.githubusercontent.com/${USER}/${REPO}/main/product_data.json?t=${Date.now()}`;
         try {
             const res = await fetch(url);
-            const data = await res.json();
-            render(data);
-        } catch (e) { list.innerHTML = "No products found."; }
+            masterData = await res.json();
+            renderProducts(masterData); // শুরুতে সব দেখাবে
+        } catch (e) { document.getElementById('product-list').innerHTML = "No Data Found."; }
     }
 
-    // Full Search Logic
-    async function searchAllCategories(query) {
-        if(!query) return;
-        const list = document.getElementById('product-list');
-        list.innerHTML = "Searching everywhere...";
-        let results = [];
-        for(let file of categories) {
-            try {
-                const res = await fetch(`https://raw.githubusercontent.com/${USER}/${REPO}/main/${file}`);
-                const data = await res.json();
-                const filtered = data.filter(p => p.name.toLowerCase().includes(query.toLowerCase()) || p.code.toLowerCase().includes(query.toLowerCase()));
-                results = [...results, ...filtered];
-            } catch(e) {}
-        }
-        render(results);
+    function filterByCategory(cat) {
+        const filtered = masterData.filter(p => p.category === cat);
+        renderProducts(filtered);
     }
 
-    function render(data) {
+    function renderProducts(data) {
         const list = document.getElementById('product-list');
         list.innerHTML = data.map(p => `
             <div class="card">
-                <img src="${p.img || p.image}" onerror="this.src='https://via.placeholder.com/200'">
+                <img src="${p.img}">
                 <h3>${p.name}</h3>
                 <p class="price">₹${p.mrp}</p>
-                <button onclick='addToCart(${JSON.stringify(p)})' style="width:100%; padding:10px; background:gold; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">Add to Bag</button>
+                <button onclick='addToCart(${JSON.stringify(p)})'>Add to Bag</button>
             </div>
         `).join('');
     }
 
-    window.onload = () => {
-        const menu = document.getElementById('cat-menu');
-        categories.forEach((cat, i) => {
-            const btn = document.createElement('button');
-            btn.className = `cat-btn ${i===0?'active':''}`;
-            btn.innerText = cat.replace('.json','').replace('_',' ').toUpperCase();
-            btn.onclick = (e) => loadCategory(cat, e.target);
-            menu.appendChild(btn);
-        });
-        loadCategory(categories[0]);
-    };
+    window.onload = loadMasterData;
 </script>
-</body>
-</html>
