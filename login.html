@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login - CKART</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-box { width: 300px; margin: 100px auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #333; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2>অ্যাডমিন লগইন</h2>
+        <input type="text" id="admin_user" placeholder="ইউজারনেম">
+        <input type="password" id="admin_pass" placeholder="পাসওয়ার্ড">
+        <button id="btnLogin">লগইন করুন</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // এখানে আপনার সেই Config কোডটি বসাবেন
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            databaseURL: "https://ckart-5b2d9-default-rtdb.firebaseio.com/",
+            projectId: "ckart-5b2d9",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        document.getElementById('btnLogin').addEventListener('click', async () => {
+            const user = document.getElementById('admin_user').value;
+            const pass = document.getElementById('admin_pass').value;
+
+            const adminRef = ref(db, 'admin_data/auth');
+            const snapshot = await get(adminRef);
+
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                if(user === data.username && pass === data.password) {
+                    sessionStorage.setItem("adminLoggedIn", "true");
+                    window.location.href = "admin.html";
+                } else {
+                    alert("ভুল ইউজারনেম বা পাসওয়ার্ড!");
+                }
+            } else {
+                alert("অ্যাডমিন ডেটা পাওয়া যায়নি! ফায়ারবেসে আগে সেট করুন।");
+            }
+        });
+    </script>
+</body>
+</html>
